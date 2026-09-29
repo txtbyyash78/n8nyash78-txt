@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TXT AI Automation Lab</title>
+<style>
+:root{--bg:#080808;--panel:#111;--panel2:#171717;--line:#292929;--text:#f5f5f5;--muted:#a6a6a6;--yellow:#f4d35e;--green:#69d18f;--red:#ff6b6b;--blue:#73a9ff}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea{font:inherit}button{cursor:pointer}.app{min-height:100vh}
+.top{height:68px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 18px;gap:18px;position:sticky;top:0;background:rgba(8,8,8,.94);backdrop-filter:blur(14px);z-index:20}
+.logo{font-weight:900;letter-spacing:.12em;font-size:20px}.brand{font-weight:700}.brand small{display:block;color:var(--muted);font-size:11px;font-weight:500}
+.nav{display:flex;gap:5px;margin-left:auto}.nav button,.ghost{background:transparent;border:1px solid transparent;color:#bbb;padding:9px 11px;border-radius:9px}.nav button:hover,.nav .active{background:#1b1b1b;color:white;border-color:#2b2b2b}
+.demo{font-size:12px;color:#d9d9d9;white-space:nowrap}.dot{color:var(--green)}
+.run{background:var(--yellow);color:#111;border:0;border-radius:9px;padding:10px 14px;font-weight:800}
+.layout{display:grid;grid-template-columns:250px minmax(500px,1fr) 360px;height:calc(100vh - 68px)}
+.sidebar,.inspector{background:#0d0d0d;overflow:auto}.sidebar{border-right:1px solid var(--line);padding:16px}.inspector{border-left:1px solid var(--line);padding:18px}
+.section-title{font-size:11px;color:#777;text-transform:uppercase;letter-spacing:.12em;margin:18px 5px 8px}
+.block-item{border:1px solid #242424;background:#131313;border-radius:10px;padding:10px;margin:7px 0;transition:.18s;user-select:none}.block-item:hover{transform:translateY(-1px);border-color:#454545;background:#181818}.bi-top{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px}.icon{width:25px;height:25px;display:grid;place-items:center;background:#202020;border-radius:7px}.desc{font-size:11px;color:#858585;margin:5px 0 0 33px}.workspace{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 30%,#151515 0,#0b0b0b 46%,#080808 100%)}
+.workspace-head{height:52px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 15px;position:relative;z-index:5;background:rgba(8,8,8,.72)}.workspace-head strong{font-size:13px}.tools{display:flex;gap:6px}.tools button{border:1px solid #303030;background:#151515;color:#ddd;border-radius:7px;padding:6px 9px}
+.canvas{position:absolute;inset:52px 0 0;overflow:auto}.grid{position:absolute;inset:0;background-image:linear-gradient(#151515 1px,transparent 1px),linear-gradient(90deg,#151515 1px,transparent 1px);background-size:28px 28px;opacity:.55}
+#links{position:absolute;inset:0;pointer-events:none;overflow:visible}.node{position:absolute;width:190px;background:#141414;border:1px solid #333;border-radius:12px;box-shadow:0 12px 28px #0008;user-select:none;z-index:3}.node.selected{border-color:var(--yellow);box-shadow:0 0 0 1px #f4d35e33,0 16px 35px #000}.node.running{border-color:var(--blue);animation:pulse 1s infinite}.node.done{border-color:var(--green)}@keyframes pulse{50%{box-shadow:0 0 0 5px #73a9ff15}}.node-head{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid #272727;font-size:12px;font-weight:800}.node-body{padding:10px;font-size:10px;color:#999;min-height:42px}.port{position:absolute;width:9px;height:9px;border-radius:50%;background:#888;border:2px solid #111;top:50%;margin-top:-4px}.port.in{left:-5px}.port.out{right:-5px;background:var(--yellow)}.data-pill{display:inline-block;margin-top:4px;color:#ddd;background:#202020;border-radius:5px;padding:3px 5px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inspector h2{font-size:20px;margin:0 0 6px}.tag{display:inline-block;font-size:10px;padding:4px 7px;border:1px solid #303030;border-radius:99px;color:#aaa;margin-bottom:16px}.card{border:1px solid #252525;background:#121212;border-radius:12px;padding:13px;margin:10px 0}.card h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px;color:#ddd}.card p{font-size:12px;line-height:1.55;color:#aaa;margin:0}.flow{display:grid;gap:6px;text-align:center;font-size:11px}.flow div{padding:8px;border:1px solid #292929;border-radius:7px;background:#171717}.flow b{color:var(--yellow)}textarea,input,select{width:100%;background:#0b0b0b;border:1px solid #333;color:#eee;border-radius:8px;padding:9px;outline:none}textarea:focus,input:focus{border-color:#777}.primary{width:100%;border:0;border-radius:8px;background:var(--yellow);color:#111;font-weight:800;padding:10px;margin-top:8px}.secondary{width:100%;border:1px solid #383838;border-radius:8px;background:#181818;color:#eee;padding:9px;margin-top:7px}.result{white-space:pre-wrap;font-size:12px;line-height:1.5;color:#ddd;max-height:170px;overflow:auto}
+.overlay{position:fixed;inset:0;background:#000b;z-index:50;display:none;align-items:center;justify-content:center;padding:22px}.modal{width:min(900px,96vw);max-height:90vh;overflow:auto;background:#111;border:1px solid #333;border-radius:16px;padding:24px;box-shadow:0 30px 100px #000}.modal h1{margin-top:0}.modal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.choice{border:1px solid #2b2b2b;background:#171717;padding:16px;border-radius:11px;text-align:left;color:#fff}.choice:hover{border-color:var(--yellow)}.choice b{display:block;margin-bottom:6px}.choice span{font-size:12px;color:#999}
+.tabs{display:flex;gap:6px;margin-bottom:15px}.tabs button{border:1px solid #292929;background:#151515;color:#aaa;padding:8px 10px;border-radius:8px}.tabs button.active{color:#111;background:var(--yellow)}
+.resource{border:1px solid #292929;background:#151515;border-radius:12px;padding:14px;margin:10px 0}.resource h3{margin:0 0 5px}.resource small{color:#888}.resource-actions{display:flex;gap:7px;margin-top:10px}.resource-actions button{flex:1;border:1px solid #333;background:#1c1c1c;color:#ddd;border-radius:7px;padding:8px}
+.toast{position:fixed;right:18px;bottom:18px;background:#eee;color:#111;padding:11px 14px;border-radius:9px;font-size:12px;font-weight:700;z-index:80;display:none}
+.empty{text-align:center;color:#777;padding:50px 20px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#171717;border:1px solid #292929;border-radius:9px;padding:10px}.stat b{display:block;font-size:18px;color:#fff}.stat span{font-size:10px;color:#888}
+@media(max-width:1050px){.layout{grid-template-columns:210px minmax(420px,1fr)}.inspector{display:none}.nav button:nth-child(4),.nav button:nth-child(5){display:none}}
+@media(max-width:700px){.top{height:auto;min-height:64px;flex-wrap:wrap}.nav{order:3;width:100%;overflow:auto}.layout{height:calc(100vh - 108px);grid-template-columns:1fr}.sidebar{display:none}.demo{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="logo">TXT</div><div class="brand">TXT AI Automation Lab<small>Build it. Understand it. Automate it.</small></div>
+  <nav class="nav">
+    <button class="active" data-view="build">Build</button><button data-view="learn">Learn</button><button data-view="test">Test</button><button data-view="missions">Missions</button><button data-view="workflows">My Workflows</button><button onclick="resetAll()">Reset</button>
+  </nav>
+  <div class="demo"><span class="dot">●</span> Demo Mode</div><button class="run" onclick="runWorkflow()">▶ Run Automation</button>
+</header>
+
+<main class="layout">
+<aside class="sidebar" id="library"></aside>
+<section class="workspace">
+  <div class="workspace-head"><strong id="canvasTitle">BUILD LAB · Data flows from left to right</strong><div class="tools"><button onclick="zoom(-.1)">−</button><button onclick="zoom(.1)">+</button><button onclick="fitCanvas()">Fit</button><button onclick="openResources()">Resources</button></div></div>
+  <div class="canvas" id="canvas"><div class="grid"></div><svg id="links"></svg><div id="nodes"></div></div>
+</section>
+<aside class="inspector" id="inspector"><div class="empty">Select a block to learn what it does.</div></aside>
+</main>
+</div>
+
+<div class="overlay" id="welcome"><div class="modal">
+<h1>Welcome to TXT AI Automation Lab</h1><p style="color:#aaa">You are going to build your first automation. Everything here is a local classroom simulation.</p>
+<div class="modal-grid"><button class="choice" onclick="closeWelcome();loadDemo()"><b>Explore a Demo</b><span>Watch Message → AI → Task happen.</span></button><button class="choice" onclick="closeWelcome();showLesson()"><b>Learn First</b><span>Understand input, process, output and data flow.</span></button><button class="choice" onclick="closeWelcome();clearWorkflow()"><b>Build My First Automation</b><span>Start with a clean canvas.</span></button></div></div></div>
+
+<div class="overlay" id="resourceModal"><div class="modal"><div style="display:flex;justify-content:space-between;align-items:center"><h1>Resource Simulator</h1><button class="ghost" onclick="closeResources()">✕</button></div><p style="color:#999">Practice versions of real-world tools. Nothing is sent to the internet.</p><div class="tabs"><button class="active" onclick="resourceTab('email',this)">Email</button><button onclick="resourceTab('chat',this)">Chat</button><button onclick="resourceTab('doc',this)">Document</button><button onclick="resourceTab('tasks',this)">Tasks</button><button onclick="resourceTab('notes',this)">Notes</button><button onclick="resourceTab('form',this)">Form</button></div><div id="resourceBody"></div></div></div>
+
+<div class="overlay" id="missionModal"><div class="modal"><div style="display:flex;justify-content:space-between"><h1>Missions</h1><button class="ghost" onclick="document.getElementById('missionModal').style.display='none'">✕</button></div><div id="missions"></div></div></div>
+<div class="overlay" id="learnModal"><div class="modal"><div style="display:flex;justify-content:space-between"><h1>Learn: The Automation Loop</h1><button class="ghost" onclick="document.getElementById('learnModal').style.display='none'">✕</button></div><div class="flow"><div>INPUT — information enters</div><div>PROCESS — a block changes or understands it</div><div>OUTPUT — new information comes out</div><div>CONNECTION — output becomes the next input</div><div>ACTION — the result is used</div></div><p style="margin-top:18px;color:#aaa">Think of each block as a helpful station. The lines are not decoration: they represent <b style="color:white">data flow</b>.</p></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const blocks=[
+["TRIGGERS","Text Input","✎","Start with information you type.","trigger","text","text"],
+["TRIGGERS","New Message","✉","Receive a classroom message.","trigger","message","text"],
+["TRIGGERS","New Task","☑","Start when a task appears.","trigger","task","task"],
+["TRIGGERS","Button Click","●","Start when a button is pressed.","trigger","event","event"],
+["TRIGGERS","Timer","◷","Start after a simple timer.","trigger","event","event"],
+["TRIGGERS","New Student Submission","◆","Start from a practice form.","trigger","form","message"],
+["AI BLOCKS","AI Assistant","✦","Ask simulated AI to understand or create text.","ai","text","text"],
+["AI BLOCKS","Summarize","≡","Turn longer information into a shorter version.","ai","text","text"],
+["AI BLOCKS","Explain","?","Create a simple explanation.","ai","text","text"],
+["AI BLOCKS","Translate","文","Translate a classroom phrase.","ai","text","text"],
+["AI BLOCKS","Classify","◈","Put information into a category.","ai","text","category"],
+["AI BLOCKS","Extract Information","⌁","Find useful details inside text.","ai","text","list"],
+["AI BLOCKS","Generate Ideas","✧","Create a few ideas from a topic.","ai","text","list"],
+["AI BLOCKS","Generate Quiz","?","Create simple questions about a topic.","ai","text","quiz"],
+["LOGIC BLOCKS","If / Else","⑂","Choose between two paths.","logic","any","any"],
+["LOGIC BLOCKS","Filter","▽","Keep information that matches a rule.","logic","list","list"],
+["LOGIC BLOCKS","Condition","=","Check a simple condition.","logic","any","boolean"],
+["LOGIC BLOCKS","Repeat","↻","Do the same step for each item.","logic","list","list"],
+["LOGIC BLOCKS","Combine","＋","Join information together.","logic","list","text"],
+["LOGIC BLOCKS","Split","÷","Break information into separate pieces.","logic","text","list"],
+["ACTION BLOCKS","Show Result","▣","Display the final classroom result.","action","any","display"],
+["ACTION BLOCKS","Create Task","☑","Turn information into a practice task.","action","text","task"],
+["ACTION BLOCKS","Create Notification","🔔","Create a simulated alert.","action","text","notification"],
+["ACTION BLOCKS","Create Checklist","☷","Turn items into a checklist.","action","list","checklist"],
+["ACTION BLOCKS","Send Message (SIMULATED)","➤","Create a simulated outgoing message.","action","text","message"],
+["ACTION BLOCKS","Save to Notes (LOCAL DEMO)","▤","Save information in local practice notes.","action","text","note"],
+["DATA BLOCKS","Text","T","Provide text information.","data","text","text"],
+["DATA BLOCKS","Number","123","Provide a number.","data","number","number"],
+["DATA BLOCKS","List","☷","Provide several items.","data","list","list"],
+["DATA BLOCKS","Student Data","◇","Use fictional student data.","data","student","student"],
+["DATA BLOCKS","Message Data","✉","Use a fictional message.","data","message","message"]
+];
+const info={
+"AI Assistant":["AI Assistant helps you understand or create information from text.","Text or a message","The classroom AI simulation reads the words and chooses a useful response.","New text","Helpful for explanations, ideas, summaries and classroom assistance."],
+"Summarize":["Summarizing means turning longer information into a shorter version while keeping the main ideas.","Longer text","The simulator finds the important ideas and removes extra detail.","A shorter version","Useful for notes, study material and messages."],
+"Explain":["Explain turns a topic or question into a simple explanation.","A question or topic","The simulator creates a child-friendly explanation.","An explanation","Useful when a topic feels difficult."],
+"Translate":["Translate changes text into another language in the classroom simulation.","Text","The simulator recognizes a few common classroom phrases and translates them.","Translated text","Useful for language learning."],
+"Generate Quiz":["Generate Quiz turns a topic or notes into practice questions.","Topic or study text","The simulator identifies the topic and creates simple questions.","Quiz questions","Useful for revision and practice."],
+"Classify":["Classify puts information into a simple category.","Text","The simulator looks for clues and selects a category.","A category","Useful for routing messages."],
+"If / Else":["If / Else helps an automation make a choice.","Information plus a condition","The automation checks the rule and chooses a path.","One of two outcomes","Useful when different inputs need different actions."],
+"Create Task":["Create Task turns information into a useful practice task.","Task-like text","The simulator creates a local task item.","A task","Useful for turning messages into actions."],
+"Show Result":["Show Result displays information for the student.","Any result","The block prepares the information for display.","A visible result","Useful as the ending of a workflow."],
+"New Message":["New Message is a trigger that starts when a practice message arrives.","A dummy message","The automation receives the message.","Message text","Useful for message-based workflows."],
+"Text Input":["Text Input starts an automation with text you provide.","Your text","The text becomes the first piece of information in the workflow.","Text","Useful for learning data flow."],
+"Create Notification":["Create Notification makes a local practice alert.","Notification text","A simulated alert is created.","Notification","Useful for reminders."],
+"Save to Notes (LOCAL DEMO)":["This saves text into the lab's local notes area.","Text","The lab stores the note in this browser.","A saved note","Useful for keeping generated study material."]
+};
+let nodes=[], links=[], selected=null, scale=1, id=1, running=false;
+const key="txtLabState";
+function save(){localStorage.setItem(key,JSON.stringify({nodes,links,missions:completed,notes,progress}));}
+function load(){try{let s=JSON.parse(localStorage.getItem(key));if(s){nodes=s.nodes||[];links=s.links||[];completed=s.missions||[];notes=s.notes||[];progress=s.progress||progress;id=Math.max(1,...nodes.map(n=>n.id+1));}}catch(e){}}
+let completed=[],notes=[],progress={runs:0,built:0,time:0};
+function buildLibrary(){let el=document.getElementById("library"), last="";el.innerHTML='<div style="font-weight:800;margin:2px 4px 12px">Block Library</div><div style="font-size:11px;color:#777">Drag or click a block to add it.</div>';blocks.forEach(b=>{if(b[0]!==last){el.innerHTML+=`<div class="section-title">${b[0]}</div>`;last=b[0]}let d=b[3];el.innerHTML+=`<div class="block-item" draggable="true" data-name="${b[1]}"><div class="bi-top"><span class="icon">${b[2]}</span>${b[1]}</div><div class="desc">${d}</div></div>`});el.querySelectorAll(".block-item").forEach(x=>{x.onclick=()=>addNode(x.dataset.name,80+nodes.length*18,80+nodes.length*12);x.ondragstart=e=>e.dataTransfer.setData("name",x.dataset.name)});}
+function addDrop(){let c=document.getElementById("canvas");c.ondragover=e=>e.preventDefault();c.ondrop=e=>{let name=e.dataTransfer.getData("name");let r=c.getBoundingClientRect();addNode(name,e.clientX-r.left+document.getElementById("canvas").scrollLeft-95,e.clientY-r.top+document.getElementById("canvas").scrollTop-30)}}
+function getDef(name){return blocks.find(b=>b[1]===name)}
+function addNode(name,x,y){let d=getDef(name);if(!d)return;let n={id:id++,name,x:Math.max(25,x),y:Math.max(25,y),value:defaultInput(name)};nodes.push(n);render();selectNode(n.id);save();toast("Block added — now learn what it does.");}
+function defaultInput(name){if(name==="Text Input"||name==="Text")return"Explain gravity.";if(name==="New Message")return"Tomorrow I need to submit my science project and prepare my presentation.";return""}
+function render(){let ns=document.getElementById("nodes");ns.innerHTML="";nodes.forEach(n=>{let d=getDef(n.name), div=document.createElement("div");div.className="node"+(selected===n.id?" selected":"");div.style.left=n.x+"px";div.style.top=n.y+"px";div.innerHTML=`<div class="node-head"><span class="icon">${d[2]}</span>${n.name}</div><div class="node-body">${d[3]}${n.output?`<div class="data-pill">${escapeHtml(String(n.output))}</div>`:""}</div><span class="port in"></span><span class="port out"></span>`;div.onmousedown=e=>dragNode(e,n);div.onclick=e=>{e.stopPropagation();selectNode(n.id)};ns.appendChild(div)});drawLinks();}
+function dragNode(e,n){if(e.target.classList.contains("port"))return;let sx=e.clientX,sy=e.clientY,ox=n.x,oy=n.y;function move(ev){n.x=ox+(ev.clientX-sx);n.y=oy+(ev.clientY-sy);render()}function up(){document.removeEventListener("mousemove",move);document.removeEventListener("mouseup",up);save()}document.addEventListener("mousemove",move);document.addEventListener("mouseup",up)}
+function selectNode(i){selected=i;render();renderInspector()}
+document.getElementById("canvas").onclick=()=>{selected=null;render();renderInspector()};
+function drawLinks(){let svg=document.getElementById("links");svg.setAttribute("width",Math.max(1200,document.getElementById("canvas").scrollWidth));svg.setAttribute("height",Math.max(800,document.getElementById("canvas").scrollHeight));svg.innerHTML=`<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#777"/></marker></defs>`;links.forEach((l,i)=>{let a=nodes.find(n=>n.id===l.a),b=nodes.find(n=>n.id===l.b);if(!a||!b)return;let x1=a.x+190,y1=a.y+45,x2=b.x,y2=b.y+45,dx=Math.max(40,(x2-x1)/2);svg.innerHTML+=`<path d="M${x1} ${y1} C${x1+dx} ${y1},${x2-dx} ${y2},${x2} ${y2}" fill="none" stroke="#777" stroke-width="2" marker-end="url(#arrow)"/>`;});}
+function renderInspector(){let el=document.getElementById("inspector");if(!selected){el.innerHTML='<div class="empty">Select a block to learn what it does.</div>';return}let n=nodes.find(x=>x.id===selected),d=getDef(n.name),i=info[n.name]||[d[3],d[5],`The ${n.name} block works with the information it receives.`,d[6],"Try it, inspect the result, then connect it to another block."];el.innerHTML=`<h2>${n.name}</h2><span class="tag">${d[0]} · input: ${d[5]} · output: ${d[6]}</span>
+<div class="card"><h3>What is it?</h3><p>${i[0]}</p></div>
+<div class="card"><h3>Input</h3><p>${i[1]}</p></div>
+<div class="card"><h3>What happens?</h3><div class="flow"><div>YOUR INFORMATION</div><b>↓</b><div>THE BLOCK WORKS</div><b>↓</b><div>NEW INFORMATION</div></div><p style="margin-top:8px">${i[2]}</p></div>
+<div class="card"><h3>Try it yourself</h3><textarea id="blockInput" rows="5" placeholder="Enter your own information...">${escapeHtml(n.value||"")}</textarea><button class="primary" onclick="runBlock()">RUN BLOCK</button><button class="secondary" onclick="connectToSelected()">Connect this output to another block</button></div>
+<div class="card"><h3>Output</h3><div class="result">${escapeHtml(n.output||"Run the block to see its output.")}</div></div>
+<div class="card"><h3>Why would I use it?</h3><p>${i[4]}</p></div>
+<div class="card"><h3>🔍 See what happened</h3><p>${n.output?`INPUT → ${escapeHtml(n.value||"")}<br><br>PROCESS → ${escapeHtml(i[2])}<br><br>OUTPUT → ${escapeHtml(n.output)}`:"Run the block to inspect the input, process and output."}</p></div>`;
+}
+function runBlock(){let n=nodes.find(x=>x.id===selected);if(!n)return;n.value=document.getElementById("blockInput").value;n.output=simulate(n.name,n.value);render();renderInspector();save();toast("Block completed — inspect the output.");}
+function simulate(name,input){let s=String(input||"").trim();if(name==="Summarize"){if(!s)return"Add some text first.";return s.length<90?s:`${s.split(/[.!?]/).filter(Boolean).slice(0,2).join(". ")}.`}
+if(name==="Explain"||name==="AI Assistant"){if(/gravity/i.test(s))return"Gravity is a force that pulls objects toward each other. On Earth, gravity pulls things toward the ground.";if(/photosynthesis/i.test(s))return"Photosynthesis is how green plants use sunlight, water and carbon dioxide to make food and release oxygen.";return`Here is a simple explanation: ${s.replace(/^explain\s*/i,"")} means understanding an idea by describing its main parts in clear language.`}
+if(name==="Translate"){if(/hello/i.test(s))return"नमस्ते";if(/thank you/i.test(s))return"धन्यवाद";return"अनुवाद: "+s}
+if(name==="Generate Quiz"){let topic=s.replace(/^create quiz about\s*/i,"")||"this topic";return`1. What is ${topic}?
+2. What is one important idea about ${topic}?
+3. Why is ${topic} useful?
+4. Can you explain ${topic} in your own words?
+5. What is one example of ${topic}?`}
+if(name==="Classify"){if(/homework|assignment|project/i.test(s))return"Schoolwork";if(/translate|language/i.test(s))return"Language";if(/help|explain|question/i.test(s))return"Question";return"General"}
+if(name==="Extract Information"){let tasks=[];(s.match(/(?:submit|prepare|complete|read|revise)[^.!?]*/gi)||[]).forEach(x=>tasks.push(x.trim()));return tasks.length?tasks.join("\n• "):"• Main topic: "+s.slice(0,70)}
+if(name==="Generate Ideas")return`• Make a short plan about ${s}
+• Turn ${s} into a quiz
+• Create a checklist for ${s}`;
+if(name==="Create Task")return"☐ "+s.replace(/^task:\s*/i,"");if(name==="Create Notification")return"🔔 "+s;if(name==="Create Checklist")return"☐ "+s.split(/[,;\n]+/).filter(Boolean).join("\n☐ ");if(name==="Save to Notes (LOCAL DEMO)"){notes.push(s);return"Saved to local classroom notes."; }if(name==="Show Result")return s;if(name==="Combine")return s;if(name==="If / Else")return /urgent|tomorrow|due/i.test(s)?"YES path: needs attention":"NO path: normal";if(name==="Filter")return s;if(name==="Split")return s.split(/[,.!?]+/).filter(Boolean).join("\n");return s||"Demo data ready."}
+function connectToSelected(){let a=nodes.find(n=>n.id===selected);if(!a){return}let b=nodes.find(n=>n.id!==a.id);if(b){if(!links.some(l=>l.a===a.id&&l.b===b.id)){links.push({a:a.id,b:b.id});toast(`Connection created: ${a.name} output → ${b.name} input.`);save();render();}}else toast("Add another block first.");}
+async function runWorkflow(){if(running||!nodes.length){if(!nodes.length)toast("Add a few blocks first.");return}running=true;progress.runs++;nodes.forEach(n=>{n.output="";n.state="waiting"});render();let ordered=[...nodes].sort((a,b)=>a.x-b.x);let data=ordered[0].value||"Tomorrow I need to submit my science project and prepare my presentation.";for(let n of ordered){n.state="running";render();await wait(500);let input=data||n.value||"Demo information";n.value=input;n.output=simulate(n.name,input);data=n.output;n.state="done";render();await wait(350)}running=false;progress.time+=1;save();renderInspector();toast("Automation completed. Educational time-saved estimate: 1 minute.");}
+function wait(ms){return new Promise(r=>setTimeout(r,ms))}
+function loadDemo(){clearWorkflow(false);addNode("New Message",90,150);addNode("AI Assistant",340,150);addNode("Create Task",590,150);addNode("Show Result",840,150);links=[{a:nodes[0].id,b:nodes[1].id},{a:nodes[1].id,b:nodes[2].id},{a:nodes[2].id,b:nodes[3].id}];nodes[0].value="Tomorrow I need to submit my science project and prepare my presentation.";save();render();toast("Demo loaded — press Run Automation.");}
+function clearWorkflow(saveIt=true){nodes=[];links=[];selected=null;if(saveIt)save();render();renderInspector()}
+function fitCanvas(){document.getElementById("canvas").scrollTo({left:0,top:0,behavior:"smooth"});scale=1;document.getElementById("nodes").style.transform="scale(1)";document.getElementById("links").style.transform="scale(1)"}
+function zoom(z){scale=Math.max(.6,Math.min(1.5,scale+z));document.getElementById("nodes").style.transform=`scale(${scale})`;document.getElementById("links").style.transform=`scale(${scale})`;document.getElementById("nodes").style.transformOrigin="0 0";document.getElementById("links").style.transformOrigin="0 0"}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function toast(t){let x=document.getElementById("toast");x.textContent=t;x.style.display="block";clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display="none",2400)}
+function closeWelcome(){document.getElementById("welcome").style.display="none"}
+function showLesson(){document.getElementById("learnModal").style.display="flex"}
+function openResources(){document.getElementById("resourceModal").style.display="flex";resourceTab("email",document.querySelector(".tabs button"))}
+function closeResources(){document.getElementById("resourceModal").style.display="none"}
+function resourceTab(type,btn){document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");let body=document.getElementById("resourceBody");let html="";
+if(type==="email")html=`<div class="resource"><h3>Dummy Email</h3><small>Teacher · Science Homework</small><p>Please complete Chapter 4 and prepare five questions.</p><div class="resource-actions"><button onclick="feedResource('Please complete Chapter 4 and prepare five questions.')">Send to Automation</button><button onclick="toast('New dummy email created.')">Create New Dummy Email</button></div></div>`;
+if(type==="chat")html=`<div class="resource"><h3>Dummy Chat</h3><p>Can you explain gravity?</p><p>What's my homework?</p><p>Translate this paragraph.</p><div class="resource-actions"><button onclick="feedResource('Can you explain gravity?')">Send Message</button></div></div>`;
+if(type==="doc")html=`<div class="resource"><h3>Science Chapter 4</h3><p>Photosynthesis is the process by which green plants use sunlight, water and carbon dioxide to produce food and oxygen.</p><div class="resource-actions"><button onclick="feedResource('Photosynthesis is the process by which green plants use sunlight, water and carbon dioxide to produce food and oxygen.')">Send Document to Workflow</button></div></div>`;
+if(type==="tasks")html=`<div class="resource"><h3>My Tasks</h3><p>☐ Complete science homework</p><p>☐ Read chapter 4</p><p>☐ Prepare quiz</p><p>☐ Revise vocabulary</p></div>`;
+if(type==="notes")html=`<div class="resource"><h3>Dummy Notes</h3>${notes.length?notes.map(x=>`<p>• ${escapeHtml(x)}</p>`).join(""):"<p>No local notes yet.</p>"}</div>`;
+if(type==="form")html=`<div class="resource"><h3>Student Practice Form</h3><input placeholder="Student Name"><br><br><input placeholder="Question"><br><br><input placeholder="Subject"><br><br><select><option>Normal</option><option>High</option></select><div class="resource-actions"><button onclick="feedResource('Student question: How does gravity work? Subject: Science. Priority: High.')">Submit</button></div></div>`;
+body.innerHTML=html}
+function feedResource(text){let n=nodes.find(n=>/Text Input|New Message|Text/.test(n.name));if(n){n.value=text;selectNode(n.id);toast("Dummy resource data sent to your trigger.");}else toast("Add Text Input or New Message first.");}
+const missionData=[
+["Level 1","Your First Automation",["Text Input","Show Result"],"Take text and display it."],
+["Level 2","Meet AI",["Text Input","AI Assistant","Show Result"],"Ask AI to explain something."],
+["Level 3","Make Long Text Short",["Text Input","Summarize","Show Result"],"Create a summary."],
+["Level 4","Turn Information Into Action",["New Message","AI Assistant","Create Task","Show Result"],"Turn a message into a task."],
+["Level 5","Make a Decision",["New Message","AI Assistant","If / Else","Show Result"],"Make a simple decision."],
+["Level 6","Build a Study Assistant",["Text Input","Summarize","Generate Quiz","Show Result"],"Turn study text into a quiz."],
+["Level 7","Use Your Automation",["New Message","AI Assistant","Create Task"],"Build a workflow and use a dummy resource."]
+];
+function showMissions(){document.getElementById("missionModal").style.display="flex";document.getElementById("missions").innerHTML=missionData.map((m,i)=>`<div class="resource"><div style="display:flex;justify-content:space-between"><h3>${m[0]} · ${m[1]}</h3><span>${completed.includes(i)?"✓ Completed":"Not completed"}</span></div><p>${m[3]}</p><small>${m[2].join(" → ")}</small><div class="resource-actions"><button onclick="startMission(${i})">Try Mission</button></div></div>`).join("")}
+function startMission(i){document.getElementById("missionModal").style.display="none";clearWorkflow(false);let x=missionData[i],base=80;x[2].forEach((name,j)=>addNode(name,base+j*230,130));for(let j=0;j<x[2].length-1;j++)links.push({a:nodes[j].id,b:nodes[j+1].id});save();render();toast(`Mission loaded: ${x[1]}`)}
+function checkMission(){let found=missionData.findIndex(m=>m[2].length===nodes.length&&m[2].every((n,i)=>nodes.sort((a,b)=>a.x-b.x)[i]?.name===n));if(found>=0&&!completed.includes(found)){completed.push(found);save();toast("Mission complete! You built the required flow.");}}
+function showWorkflows(){let saved=JSON.parse(localStorage.getItem("txtLabSaved")||"[]");document.getElementById("learnModal").style.display="flex";document.getElementById("learnModal").querySelector("h1").textContent="My Automations";document.getElementById("learnModal").querySelector(".flow").innerHTML=saved.length?saved.map((s,i)=>`<div style="text-align:left"><b>${escapeHtml(s.name)}</b><br><small>${s.blocks.join(" → ")}</small><br><button onclick="loadSaved(${i})" style="margin-top:6px">Open</button></div>`).join(""):`<div>No saved workflows yet. Use the Build tab and save one below.</div>`}
+function saveWorkflow(){let saved=JSON.parse(localStorage.getItem("txtLabSaved")||"[]");saved.push({name:"My Automation "+(saved.length+1),blocks:nodes.map(n=>n.name)});localStorage.setItem("txtLabSaved",JSON.stringify(saved));toast("Workflow saved locally.");}
+function resetAll(){if(confirm("Reset this classroom lab and local progress?")){localStorage.removeItem(key);localStorage.removeItem("txtLabSaved");location.reload()}}
+function nav(view){if(view==="missions")showMissions();else if(view==="learn")showLesson();else if(view==="test")openResources();else if(view==="workflows")showWorkflows();else document.getElementById("canvasTitle").textContent="BUILD LAB · Data flows from left to right"}
+document.querySelectorAll(".nav button[data-view]").forEach(b=>b.onclick=()=>nav(b.dataset.view));
+load();buildLibrary();addDrop();render();renderInspector();
+if(!nodes.length)setTimeout(()=>document.getElementById("welcome").style.display="flex",400);
+document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter")runWorkflow();if(e.key==="Delete"&&selected){nodes=nodes.filter(n=>n.id!==selected);links=links.filter(l=>l.a!==selected&&l.b!==selected);selected=null;render();renderInspector();save()}});
+setInterval(checkMission,1500);
+</script>
+</body>
+</html>
